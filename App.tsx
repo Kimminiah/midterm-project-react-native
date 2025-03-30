@@ -1,53 +1,47 @@
-// App.tsx
 import React, { useState } from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import JobFinderScreen from './src/screens/JobFinderScreen';
 import SavedJobsScreen from './src/screens/SavedJobsScreen';
-import ApplicationForm from './src/screens/ApplicationForm'; // Import ApplicationForm
+import ApplicationForm from './src/screens/ApplicationForm';
+import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 
-// Define navigation stack params
-export type RootStackParamList = {
-  JobFinder: undefined;
-  SavedJobs: undefined;
-  ApplicationForm: { job: Job }; // Add ApplicationForm with job parameter
-};
-
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator();
 
 export default function App() {
+  const [savedJobs, setSavedJobs] = useState<string[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const theme = {
-    colors: {
-      primary: '#6200ee',
-      background: isDarkMode ? '#121212' : '#ffffff',
-      text: isDarkMode ? '#ffffff' : '#000000',
-    },
-  };
-
   return (
-    <PaperProvider theme={theme}>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="JobFinder">
-          <Stack.Screen
-            name="JobFinder"
-            component={JobFinderScreen}
-            options={{ title: 'Job Finder', headerShown: false }}
-          />
-          <Stack.Screen
-            name="SavedJobs"
-            component={SavedJobsScreen}
-            options={{ title: 'Saved Jobs', headerShown: false }}
-          />
-          <Stack.Screen
-            name="ApplicationForm"
-            component={ApplicationForm}
-            options={{ title: 'Apply for Job', headerShown: false }}
-          />
+    <NavigationContainer>
+      <View style={{ flex: 1, backgroundColor: isDarkMode ? '#121212' : '#f5f5f5' }}>
+        <TouchableOpacity
+          style={styles.themeToggle}
+          onPress={() => setIsDarkMode(!isDarkMode)}
+        >
+          <Text style={{ fontSize: 24 }}>{isDarkMode ? '☀️' : '🌙'}</Text>
+        </TouchableOpacity>
+
+        <Stack.Navigator>
+          <Stack.Screen name="JobFinder">
+            {props => <JobFinderScreen {...props} savedJobs={savedJobs} setSavedJobs={setSavedJobs} />}
+          </Stack.Screen>
+          <Stack.Screen name="SavedJobs">
+            {props => <SavedJobsScreen {...props} savedJobs={savedJobs} setSavedJobs={setSavedJobs} />}
+          </Stack.Screen>
+          <Stack.Screen name="ApplicationForm" component={ApplicationForm} />
         </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+      </View>
+    </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  themeToggle: {
+    position: 'absolute',
+    top: 10,
+    right: 20,
+    zIndex: 100,
+    padding: 10
+  }
+});

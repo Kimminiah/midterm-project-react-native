@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TextInput, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
-import { fetchJobs } from '../services/api';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
 
@@ -13,42 +12,24 @@ type Job = {
 };
 
 type Props = {
-  navigation: StackNavigationProp<RootStackParamList, 'JobFinder'>;
+  navigation: StackNavigationProp<RootStackParamList, 'SavedJobs'>;
 };
 
-const JobFinderScreen: React.FC<Props> = ({ navigation }) => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [savedJobs, setSavedJobs] = useState<string[]>([]); // Store saved job IDs
+const SavedJobsScreen: React.FC<Props> = ({ navigation }) => {
+  const [savedJobs, setSavedJobs] = useState<Job[]>([
+    // Example saved jobs (you can replace this with global state or context)
+    { id: '1', title: 'Software Engineer', company: 'TechCorp', salary: '$100k' },
+    { id: '2', title: 'UX Designer', company: 'DesignCo', salary: '$80k' },
+  ]);
 
-  useEffect(() => {
-    const loadJobs = async () => {
-      const fetchedJobs = await fetchJobs();
-      setJobs(fetchedJobs);
-    };
-    loadJobs();
-  }, []);
-
-  const handleSaveJob = (jobId: string) => {
-    if (!savedJobs.includes(jobId)) {
-      setSavedJobs([...savedJobs, jobId]);
-    }
+  const handleRemoveJob = (jobId: string) => {
+    setSavedJobs(savedJobs.filter((job) => job.id !== jobId));
   };
-
-  const filteredJobs = jobs.filter((job) =>
-    job.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search jobs..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
       <FlatList
-        data={filteredJobs}
+        data={savedJobs}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.jobCard}>
@@ -57,16 +38,17 @@ const JobFinderScreen: React.FC<Props> = ({ navigation }) => {
             <Text>{item.salary}</Text>
             <Button
               mode="contained"
-              onPress={() => handleSaveJob(item.id)}
+              onPress={() => navigation.navigate('ApplicationForm', { job: item })}
               style={styles.button}
             >
-              {savedJobs.includes(item.id) ? 'Saved' : 'Save Job'}
+              Apply
             </Button>
             <Button
               mode="outlined"
-              onPress={() => navigation.navigate('ApplicationForm', { job: item })}
+              onPress={() => handleRemoveJob(item.id)}
+              style={styles.button}
             >
-              Apply
+              Remove Job
             </Button>
           </View>
         )}
@@ -77,13 +59,6 @@ const JobFinderScreen: React.FC<Props> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  searchBar: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
   jobCard: {
     marginBottom: 16,
     padding: 16,
@@ -94,4 +69,4 @@ const styles = StyleSheet.create({
   button: { marginTop: 8 },
 });
 
-export default JobFinderScreen;
+export default SavedJobsScreen;

@@ -1,8 +1,7 @@
 // src/screens/ApplicationForm.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../App';
 
 type FormData = {
@@ -12,12 +11,9 @@ type FormData = {
   whyHire: string;
 };
 
-type Props = {
-  route: RouteProp<RootStackParamList, 'ApplicationForm'>;
-  navigation: StackNavigationProp<RootStackParamList, 'ApplicationForm'>;
-};
-
-const ApplicationForm: React.FC<Props> = ({ route, navigation }) => {
+export default function ApplicationForm() {
+  const route = useRoute<RouteProp<RootStackParamList, 'ApplicationForm'>>();
+  const navigation = useNavigation();
   const { job } = route.params;
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -25,113 +21,88 @@ const ApplicationForm: React.FC<Props> = ({ route, navigation }) => {
     contact: '',
     whyHire: '',
   });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleSubmit = () => {
-    const validationErrors: { [key: string]: string } = {};
-
-    if (!formData.name.trim()) {
-      validationErrors.name = 'Name is required.';
-    }
-    if (!formData.email.trim()) {
-      validationErrors.email = 'Email is required.';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      validationErrors.email = 'Invalid email format.';
-    }
-    if (!formData.contact.trim()) {
-      validationErrors.contact = 'Contact number is required.';
-    }
-    if (!formData.whyHire.trim()) {
-      validationErrors.whyHire = 'Please explain why we should hire you.';
-    }
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setErrors({});
-
     Alert.alert(
-      'Thank you!',
-      `Your application for "${job.title}" has been submitted.`,
-      [{ text: 'Okay', onPress: () => navigation.goBack() }]
+      'Application Submitted!',
+      `Your application for ${job.title} has been received.`,
+      [
+        { 
+          text: 'OK', 
+          onPress: () => {
+            navigation.navigate('SavedJobs');
+            // Here you would typically save to your database/state
+          }
+        }
+      ]
     );
-
-    setFormData({ name: '', email: '', contact: '', whyHire: '' });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Apply for "{job.title}"</Text>
-
+      <Text style={styles.header}>Apply for: {job.title}</Text>
+      <Text style={styles.jobDescription}>{job.description}</Text>
+      
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder="Full Name"
         value={formData.name}
         onChangeText={(text) => setFormData({ ...formData, name: text })}
       />
-      {errors.name && <Text style={styles.error}>{errors.name}</Text>}
-
+      
       <TextInput
         style={styles.input}
         placeholder="Email"
+        keyboardType="email-address"
         value={formData.email}
         onChangeText={(text) => setFormData({ ...formData, email: text })}
-        keyboardType="email-address"
       />
-      {errors.email && <Text style={styles.error}>{errors.email}</Text>}
-
+      
       <TextInput
         style={styles.input}
         placeholder="Contact Number"
+        keyboardType="phone-pad"
         value={formData.contact}
         onChangeText={(text) => setFormData({ ...formData, contact: text })}
-        keyboardType="phone-pad"
       />
-      {errors.contact && <Text style={styles.error}>{errors.contact}</Text>}
-
+      
       <TextInput
         style={[styles.input, styles.multilineInput]}
         placeholder="Why should we hire you?"
+        multiline
         value={formData.whyHire}
         onChangeText={(text) => setFormData({ ...formData, whyHire: text })}
-        multiline
       />
-      {errors.whyHire && <Text style={styles.error}>{errors.whyHire}</Text>}
-
+      
       <Button title="Submit Application" onPress={handleSubmit} />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 20,
   },
-  title: {
+  header: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
+    marginBottom: 10,
+  },
+  jobDescription: {
+    marginBottom: 20,
+    color: '#555',
   },
   input: {
     height: 40,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     borderWidth: 1,
-    marginBottom: 8,
-    paddingHorizontal: 8,
-    borderRadius: 4,
+    marginBottom: 12,
+    padding: 10,
+    borderRadius: 6,
   },
   multilineInput: {
     height: 100,
     textAlignVertical: 'top',
   },
-  error: {
-    color: 'red',
-    marginBottom: 8,
-  },
 });
-
-export default ApplicationForm;
