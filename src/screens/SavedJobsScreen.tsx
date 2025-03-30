@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Button } from 'react-native';
+import { Job } from '../../App';
 
 const JOBS_DATA = [
   {
@@ -18,34 +19,44 @@ const JOBS_DATA = [
   }
 ];
 
-export default function SavedJobsScreen({ navigation, savedJobs, setSavedJobs }) {
+export default function SavedJobsScreen({ navigation, savedJobs, setSavedJobs, isDarkMode }) {
   const removeJob = (jobId: string) => {
     setSavedJobs(prev => prev.filter(id => id !== jobId));
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>My Saved Jobs ({savedJobs.length})</Text>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#E6E6FA' }]}>
+      <Text style={[styles.title, { color: isDarkMode ? '#FFFFFF' : '#4B0082' }]}>
+        My Saved Jobs ({savedJobs.length})
+      </Text>
       
       {savedJobs.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>You haven't saved any jobs yet</Text>
+          <Text style={[styles.emptyText, { color: isDarkMode ? '#BBBBBB' : '#888' }]}>
+            You haven't saved any jobs yet
+          </Text>
           <Button 
             title="Browse Jobs" 
             onPress={() => navigation.navigate('JobFinder')}
+            color={isDarkMode ? "#BB86FC" : "#6A0DAD"}
           />
         </View>
       ) : (
         <FlatList
           data={JOBS_DATA.filter(job => savedJobs.includes(job.id))}
           renderItem={({ item }) => (
-            <View style={styles.jobCard}>
-              <Text style={styles.jobTitle}>{item.title}</Text>
-              <Text style={styles.company}>{item.company} • {item.salary}</Text>
+            <View style={[styles.jobCard, { backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF' }]}>
+              <Text style={[styles.jobTitle, { color: isDarkMode ? '#FFFFFF' : '#4B0082' }]}>
+                {item.title}
+              </Text>
+              <Text style={[styles.company, { color: isDarkMode ? '#BBBBBB' : '#666' }]}>
+                {item.company} • {item.salary}
+              </Text>
               
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                  style={[styles.button, styles.applyButton]}
+                  style={[styles.button, styles.applyButton, 
+                    { backgroundColor: isDarkMode ? '#BB86FC' : '#6A0DAD' }]}
                   onPress={() => navigation.navigate('ApplicationForm', { 
                     job: item,
                     returnScreen: 'SavedJobs'
@@ -55,7 +66,8 @@ export default function SavedJobsScreen({ navigation, savedJobs, setSavedJobs })
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.button, styles.removeButton]}
+                  style={[styles.button, styles.removeButton, 
+                    { backgroundColor: isDarkMode ? '#CF6679' : '#F44336' }]}
                   onPress={() => removeJob(item.id)}
                 >
                   <Text style={styles.buttonText}>Remove</Text>
@@ -87,14 +99,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     marginBottom: 20,
-    fontSize: 16,
-    color: '#888'
+    fontSize: 16
   },
   jobCard: {
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
-    backgroundColor: 'white',
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4
@@ -104,7 +114,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   company: {
-    color: '#666'
+    marginVertical: 5
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -117,12 +127,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center'
   },
-  applyButton: {
-    backgroundColor: '#2196F3'
-  },
-  removeButton: {
-    backgroundColor: '#F44336'
-  },
+  applyButton: {},
+  removeButton: {},
   buttonText: {
     color: 'white',
     fontWeight: 'bold'
