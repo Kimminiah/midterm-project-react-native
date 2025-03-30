@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
+import { fetchJobs } from '../services/api';
 
 type Job = {
   id: string;
@@ -15,12 +16,24 @@ type Props = {
   navigation: StackNavigationProp<RootStackParamList, 'SavedJobs'>;
 };
 
-const SavedJobsScreen: React.FC<Props> = ({ navigation }) => {
-  const [savedJobs, setSavedJobs] = useState<Job[]>([
-    // Example saved jobs (you can replace this with global state or context)
-    { id: '1', title: 'Software Engineer', company: 'TechCorp', salary: '$100k' },
-    { id: '2', title: 'UX Designer', company: 'DesignCo', salary: '$80k' },
-  ]);
+const JobsFinderScreen: React.FC<Props> = ({ navigation }) => {
+  const [savedJobs, setSavedJobs] = useState<Job[]>([]);
+
+
+  const getJobs = async () => {
+    try {
+      const data = await fetchJobs();
+
+      setSavedJobs(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+
+  useEffect(() => {
+    getJobs();
+  }, [])
 
   const handleRemoveJob = (jobId: string) => {
     setSavedJobs(savedJobs.filter((job) => job.id !== jobId));
@@ -69,4 +82,4 @@ const styles = StyleSheet.create({
   button: { marginTop: 8 },
 });
 
-export default SavedJobsScreen;
+export default JobsFinderScreen;

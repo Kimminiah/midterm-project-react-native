@@ -1,5 +1,6 @@
 // src/services/api.ts
 import axios from 'axios';
+import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = 'https://empllo.com/api/v1';
@@ -15,7 +16,7 @@ interface Job {
 export const fetchJobs = async (): Promise<Job[]> => {
   try {
     const response = await axios.get(API_URL);
-    const jobs: Job[] = response.data.map((job: Omit<Job, 'id'>) => ({
+    const jobs: Job[] = response.data.jobs.map((job: Omit<Job, 'id'>) => ({
       ...job,
       id: uuidv4(), // Assign a unique ID
     }));
